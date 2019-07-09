@@ -26,6 +26,7 @@ import esw.ocs.framework.dsl.{CswServices, Script}
 
 import scala.concurrent.duration.DurationLong
 import scala.concurrent.{Await, ExecutionContext}
+import scala.util.Try
 
 class SequencerWiring(val sequencerId: String, val observingMode: String) {
 
@@ -64,13 +65,17 @@ class SequencerWiring(val sequencerId: String, val observingMode: String) {
     typedSystem.terminate()
   }
 
-  def start(): AkkaLocation = {
+  def start(): Try[AkkaLocation] = {
     val registration = AkkaRegistration(AkkaConnection(componentId), prefix, sequencerRef)
     log.info(s"Registering ${componentId.name} with Location Service using registration: [${registration.toString}]")
 
-    Await
-      .result(locationService.register(registration), 5.seconds)
-      .location
-      .asInstanceOf[AkkaLocation]
+    Try(
+      Await.result(
+        locationService
+          .register(registration)
+          .map(_.location.asInstanceOf[AkkaLocation]),
+        5.seconds
+      )
+    )
   }
 }
