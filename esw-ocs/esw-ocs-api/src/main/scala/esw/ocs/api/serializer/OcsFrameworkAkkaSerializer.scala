@@ -8,7 +8,7 @@ import csw.logging.api.scaladsl.Logger
 import csw.logging.client.scaladsl.LoggerFactory
 import esw.ocs.api.codecs.OcsFrameworkCodecs
 import esw.ocs.api.models.StepList
-import esw.ocs.api.models.messages.SequencerMessages.ExternalEditorSequencerMsg
+import esw.ocs.api.models.messages.SequencerMessages._
 import esw.ocs.api.models.messages.{EditorResponse, SequenceComponentMsg, SequenceComponentResponse, StepListResponse}
 import io.bullet.borer.Cbor
 

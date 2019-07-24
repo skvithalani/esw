@@ -16,6 +16,7 @@ import esw.ocs.core._
 import esw.ocs.dsl.utils.ScriptLoader
 import esw.ocs.dsl.{CswServices, Script}
 import esw.ocs.macros.StrandEc
+import esw.ocs.restless.{SeqMsgClient, SeqMsgServer, SequencerImplStub}
 import esw.ocs.syntax.FutureSyntax.FutureOps
 import esw.ocs.utils.RegistrationUtils
 // $COVERAGE-OFF$
@@ -64,5 +65,10 @@ private[ocs] class SequencerWiring(val sequencerId: String, val observingMode: S
     val registration = AkkaRegistration(AkkaConnection(componentId), prefix, sequencerRef.toURI)
     RegistrationUtils.register(locationService, registration)(coordinatedShutdown).block
   }
+
+  lazy val implStub = new SequencerImplStub()
+  lazy val server   = new SeqMsgServer(implStub, null)
+  lazy val client   = new SeqMsgClient(actorRuntime.typedSystem)
+
 }
 // $COVERAGE-ON$
