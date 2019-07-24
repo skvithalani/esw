@@ -27,7 +27,7 @@ private[ocs] class SequencerWiring(val sequencerId: String, val observingMode: S
   lazy val actorRuntime = new ActorRuntime(sequencerName)
   import actorRuntime._
 
-  private lazy val engine      = new Engine()
+  lazy val engine              = new Engine()
   private lazy val componentId = ComponentId(sequencerName, ComponentType.Sequencer)
 
   private lazy val crmRef: ActorRef[CommandResponseManagerMessage] =
@@ -39,12 +39,12 @@ private[ocs] class SequencerWiring(val sequencerId: String, val observingMode: S
 
   //Pass lambda to break circular dependency shown below.
   //SequencerRef -> Script -> cswServices -> SequencerOperator -> SequencerRef
-  private lazy val sequenceOperatorFactory = () => new SequenceOperator(sequencerRef)
+  lazy val sequenceOperatorFactory = () => new SequenceOperator(sequencerRef)
 
-  private lazy val cswServices    = new CswServices(sequenceOperatorFactory, commandResponseManager)
-  private lazy val script: Script = ScriptLoader.load(scriptClass, cswServices)
-  lazy val strandEc               = StrandEc()
-  lazy val sequencer              = new Sequencer(commandResponseManager)(strandEc, timeout)
+  private lazy val cswServices = new CswServices(sequenceOperatorFactory, commandResponseManager)
+  lazy val script: Script      = ScriptLoader.load(scriptClass, cswServices)
+  lazy val strandEc            = StrandEc()
+  lazy val sequencer           = new Sequencer(commandResponseManager)(strandEc, timeout)
 
   lazy val sequenceEditorClient = new SequenceEditorClient(sequencerRef)
 
