@@ -13,7 +13,7 @@ import csw.params.commands.{CommandResponse, ControlCommand}
 import csw.params.core.formats.ParamCodecs
 import csw.params.core.models.Id
 import csw.params.core.states.{StateName, StateVariable}
-import esw.http.core.commons.RichMessageExt._
+import esw.http.core.commons.ToMessage._
 import esw.http.core.commons.RichSourceExt.RichSource
 import esw.http.core.commons.Utils._
 import esw.http.core.utils.CswContext
@@ -67,7 +67,7 @@ class CommandRoutes(cswCtx: CswContext, actorRuntime: ActorRuntime) extends Para
               val eventualResponse: Future[CommandResponse.SubmitResponse] = {
                 commandService.queryFinal(Id(runId))(Timeout(100.hours))
               }
-              handleWebSocketMessages(eventualResponse.toMessageFlow)
+              handleWebSocketMessages(eventualResponse.toTextMessageFlow)
             } ~
             path("current-state" / "subscribe") {
               parameters(("state-name".as[String].*, "max-frequency".as[Int].?)) { (stateNames, maxFrequency) =>

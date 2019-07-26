@@ -18,7 +18,7 @@ import csw.params.core.states.{CurrentState, StateName, StateVariable}
 import esw.gateway.server.CswContextMocks
 import esw.gateway.server.routes.Protocol.GetNumbers
 import esw.http.core.HttpTestSuite
-import esw.http.core.commons.RichMessageExt.ToMessage
+import esw.http.core.commons.ToMessage.ValueToMessage
 import io.bullet.borer.Json
 
 import scala.concurrent.duration.DurationDouble
@@ -285,7 +285,7 @@ class CommandRoutesTest extends HttpTestSuite {
       val wsClient = WSProbe()
       WS(s"/command/websocket", wsClient.flow) ~> route ~> check {
         // check response for WS Upgrade headers
-        wsClient.sendMessage(GetNumbers(2).toMessage)
+        wsClient.sendMessage(GetNumbers(2).toTextMessage)
 
         isWebSocketUpgrade shouldEqual true
         println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))

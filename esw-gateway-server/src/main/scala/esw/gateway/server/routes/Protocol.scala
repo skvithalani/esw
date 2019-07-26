@@ -5,7 +5,8 @@ import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{DelayOverflowStrategy, Materializer}
 import esw.gateway.server.routes.Protocol.{GetNumbers, GetNumbersResponse, GetWords, GetWordsResponse, WsRequest, WsResponse}
-import esw.http.core.commons.RichMessageExt.ToMessage
+import esw.http.core.commons.ToMessage.ValueToMessage
+import esw.http.core.commons.ToMessage.SourceToMessage
 import io.bullet.borer.derivation.MapBasedCodecs._
 import io.bullet.borer.{Codec, Json}
 
@@ -62,11 +63,9 @@ class WsFlow(handler: Handler)(implicit mat: Materializer) {
   val value: Flow[Message, Message, NotUsed] = {
     Flow[Message].mapConcat {
       case message: TextMessage =>
-        val singleMsg = Source.fromFuture(message.toStrict(1.second))
-        val textStream = singleMsg.flatMapConcat { strictMsg =>
-          handler.handle(strictMsg.text).map(_.toText)
-        }
-        List(TextMessage(textStream))
+        val singleRequest  = Source.fromFuture(message.toStrict(1.second))
+        val responseStream = singleRequest.flatMapConcat(msg => handler.handle(msg.text))
+        List(responseStream.toTextMessage)
       case message: BinaryMessage =>
         message.dataStream.runWith(Sink.ignore)
         List.empty
