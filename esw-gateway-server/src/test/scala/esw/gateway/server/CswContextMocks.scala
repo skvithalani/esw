@@ -37,10 +37,9 @@ class CswContextMocks(system: ActorSystem[SpawnProtocol]) {
   val eventSubscriber: EventSubscriber         = mock[EventSubscriber]
   val handlers: RouteHandlers                  = new RouteHandlers(logger)
 
-  val route: Route = new Routes(cswCtx).route
+  val route: Route = new Routes(cswCtx, actorRuntime).route
 
   when(cswCtx.logger).thenReturn(logger)
-  when(cswCtx.ar).thenReturn(actorRuntime)
 
   when(cswCtx.routeHandlers).thenReturn(handlers)
 

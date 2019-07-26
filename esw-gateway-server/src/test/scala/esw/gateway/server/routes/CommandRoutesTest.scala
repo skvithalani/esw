@@ -258,7 +258,6 @@ class CommandRoutesTest extends HttpTestSuite {
   "WS /command/{componentType}/{componentName}/websocket/{runId}/" must {
     "return a stream which finishes with CommandResponse" in new Setup {
       import cswMocks._
-      import io.bullet.borer.compat.akka._
 
       val wsClient         = WSProbe()
       val runId            = Id("123")
@@ -275,6 +274,8 @@ class CommandRoutesTest extends HttpTestSuite {
           Json.decode(wsClient.expectMessage().asTextMessage.getStrictText.getBytes()).to[SubmitResponse].value
 
         response shouldEqual expectedResponse
+        wsClient.sendCompletion()
+        wsClient.expectCompletion()
       }
     }
 
@@ -290,6 +291,8 @@ class CommandRoutesTest extends HttpTestSuite {
         println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))
 
         Thread.sleep(10000)
+        wsClient.sendCompletion()
+        wsClient.expectCompletion()
       }
     }
   }

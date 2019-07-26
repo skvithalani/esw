@@ -5,8 +5,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.{DebuggingDirectives, LoggingMagnet}
 import akka.http.scaladsl.server.{Directive0, Route}
 import esw.http.core.utils.CswContext
+import esw.http.core.wiring.ActorRuntime
 
-class Routes(cswCtx: CswContext) {
+class Routes(cswCtx: CswContext, actorRuntime: ActorRuntime) {
 
   import cswCtx._
 
@@ -22,7 +23,7 @@ class Routes(cswCtx: CswContext) {
 
   private val routeLogger: Directive0 = DebuggingDirectives.logRequest(LoggingMagnet(_ => logRequest))
   private val eventRoutes: Route      = new EventRoutes(cswCtx).route
-  private val commandRoutes: Route    = new CommandRoutes(cswCtx).route
+  private val commandRoutes: Route    = new CommandRoutes(cswCtx, actorRuntime).route
   private val alarmRoutes: Route      = new AlarmRoutes(cswCtx).route
 
   def route: Route = routeLogger {

@@ -24,7 +24,7 @@ object Main extends CommandApp[ServerCommand] {
     import wiring.cswCtx._
     if (startLogging) actorRuntime.startLogging(BuildInfo.name, BuildInfo.version)
 
-    lazy val routes      = new Routes(cswCtx)
+    lazy val routes      = new Routes(cswCtx, actorRuntime)
     lazy val httpService = new HttpService(logger, locationService, routes.route, settings, actorRuntime)
 
     Await.result(httpService.registeredLazyBinding, 15.seconds)
