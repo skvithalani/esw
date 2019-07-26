@@ -16,7 +16,9 @@ import csw.params.commands.{CommandName, CommandResponse, ControlCommand, Setup}
 import csw.params.core.models.{Id, ObsId, Prefix}
 import csw.params.core.states.{CurrentState, StateName, StateVariable}
 import esw.gateway.server.CswContextMocks
+import esw.gateway.server.routes.Protocol.GetNumbers
 import esw.http.core.HttpTestSuite
+import esw.http.core.commons.RichMessageExt.ToMessage
 import io.bullet.borer.Json
 
 import scala.concurrent.duration.DurationDouble
@@ -270,9 +272,24 @@ class CommandRoutesTest extends HttpTestSuite {
         // check response for WS Upgrade headers
         isWebSocketUpgrade shouldEqual true
         val response: CommandResponse =
-          Json.decode(wsClient.expectMessage().asBinaryMessage.getStrictData).to[SubmitResponse].value
+          Json.decode(wsClient.expectMessage().asTextMessage.getStrictText.getBytes()).to[SubmitResponse].value
 
         response shouldEqual expectedResponse
+      }
+    }
+
+    "return a stream for GetNumbers and GetWords" in new Setup {
+      import cswMocks._
+
+      val wsClient = WSProbe()
+      WS(s"/command/websocket", wsClient.flow) ~> route ~> check {
+        // check response for WS Upgrade headers
+        wsClient.sendMessage(GetNumbers(2).toMessage)
+
+        isWebSocketUpgrade shouldEqual true
+        println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))
+
+        Thread.sleep(10000)
       }
     }
   }

@@ -1,10 +1,13 @@
 package esw.gateway.server.routes
 
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.marshalling.sse.EventStreamMarshalling._
 import akka.http.scaladsl.server.Directives.{entity, _}
 import akka.http.scaladsl.server.Route
-import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
+import akka.stream.typed.scaladsl.ActorMaterializer
+import akka.stream.{Materializer, OverflowStrategy}
 import akka.util.Timeout
 import csw.command.api.CurrentStateSubscription
 import csw.location.client.HttpCodecs
@@ -23,11 +26,18 @@ import scala.concurrent.duration.DurationLong
 
 class CommandRoutes(cswCtx: CswContext) extends ParamCodecs with HttpCodecs {
   import cswCtx._
-
-  implicit val timeout: Timeout = Timeout(5.seconds)
+  implicit val demo: ActorSystem[_] = ActorSystem(Behaviors.empty, "demo")
+  implicit val mat: Materializer    = ActorMaterializer()
+  private def wsFlow                = new WsFlow(new Handler(new SimpleApi))
+  implicit val timeout: Timeout     = Timeout(5.seconds)
 
   def commandRoutes(componentType: String): Route =
     pathPrefix("command") {
+      get {
+        path("websocket") {
+          handleWebSocketMessages(wsFlow.value)
+        }
+      } ~
       pathPrefix(componentType / Segment) { componentName =>
         val commandServiceF = componentFactory.commandService(componentName, ComponentType.withName(componentType))
 

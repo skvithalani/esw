@@ -40,6 +40,7 @@ class CswContextMocks(system: ActorSystem[SpawnProtocol]) {
   val route: Route = new Routes(cswCtx).route
 
   when(cswCtx.logger).thenReturn(logger)
+  when(cswCtx.ar).thenReturn(actorRuntime)
 
   when(cswCtx.routeHandlers).thenReturn(handlers)
 

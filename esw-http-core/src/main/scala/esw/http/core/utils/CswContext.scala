@@ -18,6 +18,8 @@ import esw.http.core.wiring.ActorRuntime
 class CswContext(actorRuntime: ActorRuntime, httpConnection: HttpConnection, config: Config) {
   import actorRuntime._
 
+  def ar: ActorRuntime = actorRuntime
+
   lazy val locationService: LocationService = HttpLocationServiceFactory.makeLocalClient(typedSystem, mat)
 
   lazy val eventSubscriberUtil: EventSubscriberUtil = new EventSubscriberUtil()
