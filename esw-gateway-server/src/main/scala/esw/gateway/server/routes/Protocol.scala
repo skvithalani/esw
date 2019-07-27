@@ -64,11 +64,11 @@ class SimpleApi {
 }
 
 class Handler(simpleApi: SimpleApi) {
-  def handle(text: String): Source[WsResponse, NotUsed] = {
+  def handle(text: String): TextMessage = {
     Json.decode(text.getBytes()).to[WsRequest].value match {
-      case GetNumbers(divisibleBy) => simpleApi.getNumbers(divisibleBy).map(GetNumbersResponse)
-      case GetWords(size)          => simpleApi.getWords(size).map(GetWordsResponse)
-      case GetBigInput(data)       => Source.single(BitInputResponse(data))
+      case GetNumbers(divisibleBy) => simpleApi.getNumbers(divisibleBy).map(GetNumbersResponse).textMessage
+      case GetWords(size)          => simpleApi.getWords(size).map(GetWordsResponse).textMessage
+      case GetBigInput(data)       => BitInputResponse(data).textMessage
     }
   }
 }
@@ -77,7 +77,7 @@ class WsFlow(handler: Handler)(implicit mat: Materializer) {
   val value: Flow[Message, Message, NotUsed] = {
     Flow[Message].mapConcat {
       case TextMessage.Strict(text) =>
-        List(handler.handle(text).textMessage)
+        List(handler.handle(text))
       case message: TextMessage.Streamed =>
         message.textStream.runWith(Sink.ignore)
         List.empty

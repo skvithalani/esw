@@ -286,8 +286,10 @@ class CommandRoutesTest extends HttpTestSuite {
       WS(s"/command/websocket", wsClient.flow) ~> route ~> check {
         // check response for WS Upgrade headers
         wsClient.sendMessage(GetBigInput((1 to 100000).toList).textMessage)
+        wsClient.sendMessage(GetNumbers(3).textMessage)
 
         isWebSocketUpgrade shouldEqual true
+        println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))
         println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))
 
         Thread.sleep(5000)
