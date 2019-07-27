@@ -285,7 +285,7 @@ class CommandRoutesTest extends HttpTestSuite {
       val wsClient = WSProbe()
       WS(s"/command/websocket", wsClient.flow) ~> route ~> check {
         // check response for WS Upgrade headers
-        wsClient.sendMessage(GetNumbers(2).toTextMessage)
+        wsClient.sendMessage(GetNumbers(2).textMessage)
 
         isWebSocketUpgrade shouldEqual true
         println(wsClient.expectMessage().asTextMessage.getStreamedText.asScala.runForeach(println))

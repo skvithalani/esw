@@ -65,7 +65,7 @@ class WsFlow(handler: Handler)(implicit mat: Materializer) {
       case message: TextMessage =>
         val singleRequest  = Source.fromFuture(message.toStrict(1.second))
         val responseStream = singleRequest.flatMapConcat(msg => handler.handle(msg.text))
-        List(responseStream.toTextMessage)
+        List(responseStream.textMessage)
       case message: BinaryMessage =>
         message.dataStream.runWith(Sink.ignore)
         List.empty

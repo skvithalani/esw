@@ -67,7 +67,7 @@ class CommandRoutes(cswCtx: CswContext, actorRuntime: ActorRuntime) extends Para
               val eventualResponse: Future[CommandResponse.SubmitResponse] = {
                 commandService.queryFinal(Id(runId))(Timeout(100.hours))
               }
-              handleWebSocketMessages(eventualResponse.toTextMessageFlow)
+              handleWebSocketMessages(eventualResponse.textMessageFlow)
             } ~
             path("current-state" / "subscribe") {
               parameters(("state-name".as[String].*, "max-frequency".as[Int].?)) { (stateNames, maxFrequency) =>
