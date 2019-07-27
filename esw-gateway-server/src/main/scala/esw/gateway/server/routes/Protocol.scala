@@ -4,7 +4,16 @@ import akka.NotUsed
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{DelayOverflowStrategy, Materializer}
-import esw.gateway.server.routes.Protocol.{GetNumbers, GetNumbersResponse, GetWords, GetWordsResponse, WsRequest, WsResponse}
+import esw.gateway.server.routes.Protocol.{
+  BitInputResponse,
+  GetBigInput,
+  GetNumbers,
+  GetNumbersResponse,
+  GetWords,
+  GetWordsResponse,
+  WsRequest,
+  WsResponse
+}
 import esw.http.core.commons.ToMessage.ValueToMessage
 import esw.http.core.commons.ToMessage.SourceToMessage
 import io.bullet.borer.derivation.MapBasedCodecs._
@@ -17,20 +26,24 @@ object Protocol {
   sealed trait WsRequest
   case class GetNumbers(divisibleBy: Int) extends WsRequest
   case class GetWords(size: Int)          extends WsRequest
+  case class GetBigInput(data: List[Int]) extends WsRequest
 
   sealed trait WsResponse
-  case class GetNumbersResponse(number: Int) extends WsResponse
-  case class GetWordsResponse(word: String)  extends WsResponse
+  case class GetNumbersResponse(number: Int)   extends WsResponse
+  case class GetWordsResponse(word: String)    extends WsResponse
+  case class BitInputResponse(data: List[Int]) extends WsResponse
 
   implicit def wsRequestCodec[T <: WsRequest]: Codec[T] = {
-    implicit lazy val getNumbersCodec: Codec[GetNumbers] = deriveCodec[GetNumbers]
-    implicit lazy val getWordsCodec: Codec[GetWords]     = deriveCodec[GetWords]
+    implicit lazy val getNumbersCodec: Codec[GetNumbers]   = deriveCodec[GetNumbers]
+    implicit lazy val getWordsCodec: Codec[GetWords]       = deriveCodec[GetWords]
+    implicit lazy val getBitInputCodec: Codec[GetBigInput] = deriveCodec[GetBigInput]
     deriveCodec[WsRequest].asInstanceOf[Codec[T]]
   }
 
   implicit def wsRequestResponseCodec[T <: WsResponse]: Codec[T] = {
     implicit lazy val getNumbersResponseCodec: Codec[GetNumbersResponse] = deriveCodec[GetNumbersResponse]
     implicit lazy val getWordsResponseCodec: Codec[GetWordsResponse]     = deriveCodec[GetWordsResponse]
+    implicit lazy val BitInputResponseCodec: Codec[BitInputResponse]     = deriveCodec[BitInputResponse]
     deriveCodec[WsResponse].asInstanceOf[Codec[T]]
   }
 }
@@ -55,6 +68,7 @@ class Handler(simpleApi: SimpleApi) {
     Json.decode(text.getBytes()).to[WsRequest].value match {
       case GetNumbers(divisibleBy) => simpleApi.getNumbers(divisibleBy).map(GetNumbersResponse)
       case GetWords(size)          => simpleApi.getWords(size).map(GetWordsResponse)
+      case GetBigInput(data)       => Source.single(BitInputResponse(data))
     }
   }
 }
@@ -62,10 +76,11 @@ class Handler(simpleApi: SimpleApi) {
 class WsFlow(handler: Handler)(implicit mat: Materializer) {
   val value: Flow[Message, Message, NotUsed] = {
     Flow[Message].mapConcat {
-      case message: TextMessage =>
-        val singleRequest  = Source.fromFuture(message.toStrict(1.second))
-        val responseStream = singleRequest.flatMapConcat(msg => handler.handle(msg.text))
-        List(responseStream.textMessage)
+      case TextMessage.Strict(text) =>
+        List(handler.handle(text).textMessage)
+      case message: TextMessage.Streamed =>
+        message.textStream.runWith(Sink.ignore)
+        List.empty
       case message: BinaryMessage =>
         message.dataStream.runWith(Sink.ignore)
         List.empty
