@@ -3,8 +3,8 @@ package esw.ocs.core
 import akka.Done
 import akka.util.Timeout
 import csw.command.client.CommandResponseManager
-import csw.command.client.messages.ProcessSequenceError.ExistingSequenceIsInProcess
-import csw.command.client.messages.ProcessSequenceResponse
+import csw.command.client.messages.sequencer.SequenceError.ExistingSequenceIsInProcess
+import csw.command.client.messages.sequencer.SequenceResponse
 import csw.params.commands.CommandResponse.{Completed, Error, Started, SubmitResponse}
 import csw.params.commands.{CommandResponse, Sequence, SequenceCommand}
 import csw.params.core.models.Id
@@ -30,10 +30,10 @@ class Sequencer(crm: CommandResponseManager)(implicit strandEc: StrandEc, timeou
   private var stepRefPromise: Option[Promise[Step]]            = None
   private var sequencerAvailable                               = true
 
-  def processSequence(sequence: Sequence): Future[ProcessSequenceResponse] =
+  def processSequence(sequence: Sequence): Future[SequenceResponse] =
     async {
       if (sequencerAvailable)
-        ProcessSequenceResponse(
+        SequenceResponse(
           await(
             StepList(sequence)
               .traverse { _stepList =>
@@ -48,7 +48,7 @@ class Sequencer(crm: CommandResponseManager)(implicit strandEc: StrandEc, timeou
               }
           )
         )
-      else ProcessSequenceResponse(Left(ExistingSequenceIsInProcess))
+      else SequenceResponse(Left(ExistingSequenceIsInProcess))
     }
 
   def pullNext(): Future[Step] = async {

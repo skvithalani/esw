@@ -5,7 +5,7 @@ import akka.actor.Scheduler
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ActorRef, ActorSystem, SpawnProtocol}
 import akka.util.Timeout
-import csw.command.client.messages.{ProcessSequence, ProcessSequenceResponse, SequencerMsg}
+import csw.command.client.messages.sequencer.{LoadAndStartSequence, SequenceResponse, SequencerMsg}
 import csw.location.api.extensions.URIExtension.RichURI
 import csw.location.api.scaladsl.LocationService
 import csw.location.client.scaladsl.HttpLocationServiceFactory
@@ -60,7 +60,7 @@ class SequencerTest extends ScalaTestFrameworkTestKit with BaseTestSuite {
       val command3 = Setup(Prefix("test"), CommandName("command-3"), None)
       val sequence = Sequence(command3)
 
-      val processSeqResponse: Future[ProcessSequenceResponse] = sequencer ? (ProcessSequence(sequence, _))
+      val processSeqResponse: Future[SequenceResponse] = sequencer ? (LoadAndStartSequence(sequence, _))
 
       processSeqResponse.futureValue.response.rightValue should ===(Completed(sequence.runId))
 
@@ -75,7 +75,7 @@ class SequencerTest extends ScalaTestFrameworkTestKit with BaseTestSuite {
       val command3 = Setup(Prefix("test"), CommandName("command-3"), None)
       val sequence = Sequence(command1, command2)
 
-      val processSeqResponse: Future[ProcessSequenceResponse] = sequencer ? (ProcessSequence(sequence, _))
+      val processSeqResponse: Future[SequenceResponse] = sequencer ? (LoadAndStartSequence(sequence, _))
 
       val addResponse: Future[EditorResponse] = sequencer ? (Add(List(command3), _))
       addResponse.futureValue.response.rightValue should ===(Done)

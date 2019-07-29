@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch
 import akka.Done
 import akka.util.Timeout
 import csw.command.client.CommandResponseManager
-import csw.command.client.messages.ProcessSequenceError.ExistingSequenceIsInProcess
+import csw.command.client.messages.sequencer.SequenceError.ExistingSequenceIsInProcess
 import csw.params.commands.CommandResponse._
 import csw.params.commands.{CommandName, Observe, Sequence, Setup}
 import csw.params.core.models.{Id, Prefix}

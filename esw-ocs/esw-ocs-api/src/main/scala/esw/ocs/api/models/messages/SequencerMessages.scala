@@ -2,7 +2,7 @@ package esw.ocs.api.models.messages
 
 import akka.Done
 import akka.actor.typed.ActorRef
-import csw.command.client.messages.SequencerMsg
+import csw.command.client.messages.sequencer.SequencerMsg
 import csw.params.commands.CommandResponse.SubmitResponse
 import csw.params.commands.SequenceCommand
 import csw.params.core.models.Id
