@@ -27,7 +27,7 @@ object SequencerApp extends CommandApp[SequencerAppCommand] {
         startSequenceComponent(prefix, wiring, enableLogging)
 
       case Sequencer(id, mode) =>
-        val wiring = new SequencerWiring(id, mode)
+        val wiring = new SequencerWiring(id, mode, None)
         startSequencer(wiring, enableLogging)
     }
 
