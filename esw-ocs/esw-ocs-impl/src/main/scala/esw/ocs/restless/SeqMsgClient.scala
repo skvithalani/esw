@@ -36,16 +36,16 @@ class SeqMsgClient(_actorSystem: ActorSystem[_])
 
   private val editorActionsUri = s"http://localhost:6000/editor-actions"
 
-  def dd[Req: Encoder, Res: Decoder](req: Req): Future[Res] = async {
+  def call[Req: Encoder, Res: Decoder](req: Req): Future[Res] = async {
     val requestEntity = await(Marshal(req).to[RequestEntity])
     val request       = HttpRequest(HttpMethods.POST, uri = editorActionsUri, entity = requestEntity)
     val response      = await(Http().singleRequest(request))
     await(Unmarshal(response.entity).to[Res])
   }
 
-  override def status: Future[StepList] = { println("status"); dd[EditorMsg, StepList](GetSequence) }
+  override def status: Future[StepList] = call[EditorMsg, StepList](GetSequence)
 
-  override def isAvailable: Future[Boolean] = ???
+  override def isAvailable: Future[Boolean] = call[EditorMsg, Boolean](Available)
 
   override def add(commands: List[SequenceCommand]): Future[EditorResponse] = ???
 

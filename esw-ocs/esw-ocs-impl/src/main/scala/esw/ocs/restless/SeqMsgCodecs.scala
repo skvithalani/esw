@@ -5,9 +5,8 @@ import esw.ocs.api.codecs.OcsFrameworkCodecs
 import esw.ocs.api.models.messages.error.StepListError
 import esw.ocs.api.models.messages.error.StepListError._
 import esw.ocs.restless.SeqMsg._
-import io.bullet.borer.{Codec, Decoder, Encoder}
+import io.bullet.borer.Codec
 import io.bullet.borer.derivation.MapBasedCodecs._
-import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodecForUnaryCaseClass
 
 trait SeqMsgCodecs extends ParamCodecs with OcsFrameworkCodecs {
   def singletonCodec2[T <: Singleton](a: T): Codec[T] = CodecHelpers.bimap[Map[String, String], T](_ => a, Map.empty)
