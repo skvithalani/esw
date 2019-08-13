@@ -8,7 +8,6 @@ import csw.aas.http.SecurityDirectives
 import csw.location.client.HttpCodecs
 import csw.location.client.scaladsl.HttpLocationServiceFactory
 import esw.ocs.api.codecs.OcsFrameworkCodecs
-import esw.ocs.core.Sequencer
 import esw.ocs.dsl.Script
 import esw.ocs.restless.SeqMsg.{
   Abort,
@@ -37,42 +36,42 @@ class SeqMsgServer(sequencer: SequencerImplStub, script: Script)(implicit _actor
     with OcsFrameworkCodecs {
 
   implicit val system = _actorSystem
-  implicit val mat    = ActorMaterializer()
-  val locationService = HttpLocationServiceFactory.makeLocalClient
+  implicit val mat    = ActorMaterializer()(system)
+  val locationService = HttpLocationServiceFactory.makeLocalClient(system, mat)
 
-  val directives = SecurityDirectives(locationService)
+  val directives = SecurityDirectives(locationService)(system.executionContext)
 
   import directives._
 
   override implicit def actorSystem: ActorSystem[_] = _actorSystem
 
   override protected def routes: Route = post {
-    path("signals") {
-      entity(as[SeqSignal]) {
-        case Shutdown => complete(script.executeShutdown())
-        case Abort    => complete(script.executeAbort())
+    authenticate { token =>
+      path("signals") {
+        entity(as[SeqSignal]) {
+          case Shutdown =>
+            authorize1(ClientRolePolicy(token.userOrClientName), token) {
+              complete(script.executeShutdown())
+            }
+          case Abort => complete(script.executeAbort())
+        }
       }
     } ~
-    authenticate { token =>
-      path("editor-actions") {
-        entity(as[EditorMsg]) {
-          case Available =>
-            authorize1(ClientRolePolicy(token.userOrClientName), token) {
-              complete(sequencer.isAvailable)
-            }
-          case GetSequence               => complete(sequencer.getSequence)
-          case GetPreviousSequence       => complete(sequencer.getPreviousSequence)
-          case Add(commands)             => complete(sequencer.add(commands))
-          case Prepend(commands)         => complete(sequencer.prepend(commands))
-          case Replace(id, commands)     => complete(sequencer.replace(id, commands))
-          case InsertAfter(id, commands) => complete(sequencer.insertAfter(id, commands))
-          case Delete(ids)               => complete(sequencer.delete(ids))
-          case AddBreakpoint(id)         => complete(sequencer.addBreakpoint(id))
-          case RemoveBreakpoint(id)      => complete(sequencer.removeBreakpoint(id))
-          case Pause                     => complete(sequencer.pause)
-          case Resume                    => complete(sequencer.resume)
-          case Reset                     => complete(sequencer.reset())
-        }
+    path("editor-actions") {
+      entity(as[EditorMsg]) {
+        case Available                 => complete(sequencer.isAvailable)
+        case GetSequence               => { println("getsequence received"); complete(sequencer.getSequence) }
+        case GetPreviousSequence       => complete(sequencer.getPreviousSequence)
+        case Add(commands)             => complete(sequencer.add(commands))
+        case Prepend(commands)         => complete(sequencer.prepend(commands))
+        case Replace(id, commands)     => complete(sequencer.replace(id, commands))
+        case InsertAfter(id, commands) => complete(sequencer.insertAfter(id, commands))
+        case Delete(ids)               => complete(sequencer.delete(ids))
+        case AddBreakpoint(id)         => complete(sequencer.addBreakpoint(id))
+        case RemoveBreakpoint(id)      => complete(sequencer.removeBreakpoint(id))
+        case Pause                     => complete(sequencer.pause)
+        case Resume                    => complete(sequencer.resume)
+        case Reset                     => complete(sequencer.reset())
       }
     }
   }

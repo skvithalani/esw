@@ -5,7 +5,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter.TypedActorSystemOps
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, RequestEntity, Uri}
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, RequestEntity}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import akka.stream.typed.scaladsl.ActorMaterializer
@@ -34,16 +34,16 @@ class SeqMsgClient(_actorSystem: ActorSystem[_])
   implicit val untypedSystem: actor.ActorSystem = actorSystem.toUntyped
   implicit val mat: Materializer                = ActorMaterializer()
 
-  private val signalsUri = s"http://localhost:5000/editor-actions"
+  private val editorActionsUri = s"http://localhost:6000/editor-actions"
 
   def dd[Req: Encoder, Res: Decoder](req: Req): Future[Res] = async {
     val requestEntity = await(Marshal(req).to[RequestEntity])
-    val request       = HttpRequest(HttpMethods.POST, uri = signalsUri, entity = requestEntity)
+    val request       = HttpRequest(HttpMethods.POST, uri = editorActionsUri, entity = requestEntity)
     val response      = await(Http().singleRequest(request))
     await(Unmarshal(response.entity).to[Res])
   }
 
-  override def status: Future[StepList] = dd[EditorMsg, StepList](GetSequence)
+  override def status: Future[StepList] = { println("status"); dd[EditorMsg, StepList](GetSequence) }
 
   override def isAvailable: Future[Boolean] = ???
 
