@@ -43,7 +43,7 @@ trait ScriptDsl extends ControlDsl {
     }
 
   def execute(command: SequenceCommand): Future[Unit]           = spawn(commandHandler(command).await)
-  def jExecute(command: SequenceCommand): CompletionStage[Unit] = spawn(commandHandler(command).await).asJava
+  def jExecute(command: SequenceCommand): CompletionStage[Void] = spawn(commandHandler(command).await).asJava.thenAccept(_ => ())
 
   def executeGoOnline(): Future[Done] =
     Future.sequence(onlineHandlers.execute(())).map { _ =>
@@ -75,12 +75,14 @@ trait ScriptDsl extends ControlDsl {
     }
 
   def handleSetupCommand(name: String)(handler: Setup => Future[Unit]): Unit = handle(name)(handler)
-  def jHandleSetupCommand(name: String)(handler: Setup => CompletableFuture[Unit]): Unit =
-    handle(name)((command: Setup) => handler(command).toScala)
+  def jHandleSetupCommand(name: String)(handler: Setup => CompletableFuture[Void]): Void = {
+    handle(name)((command: Setup) => handler(command).toScala.map(_ => ()))
+    null
+  }
 
   def handleObserveCommand(name: String)(handler: Observe => Future[Unit]): Unit = handle(name)(handler)
-  def jHandleObserveCommand(name: String)(handler: Observe => CompletableFuture[Unit]): Unit =
-    handle(name)((command: Observe) => handler(command).toScala)
+//  def jHandleObserveCommand(name: String)(handler: Observe => CompletableFuture[Unit]): Unit =
+//    handle(name)((command: Observe) => handler(command).toScala)
 
   def handleGoOnline(handler: => Future[Unit]): Unit  = onlineHandlers.add(_ => handler)
   def handleGoOffline(handler: => Future[Unit]): Unit = offlineHandlers.add(_ => handler)
