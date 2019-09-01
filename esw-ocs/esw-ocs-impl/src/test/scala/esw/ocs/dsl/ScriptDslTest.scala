@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch
 import csw.params.commands.{CommandName, Observe, Setup}
 import csw.params.core.models.Prefix
 import esw.ocs.api.BaseTestSuite
+import esw.ocs.macros.StrandEc
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
@@ -12,12 +13,17 @@ import scala.concurrent.duration.{DurationDouble, FiniteDuration}
 
 class ScriptDslTest extends BaseTestSuite {
 
+  trait TestScriptDsl extends ScriptDsl {
+    override protected implicit def strandEc: StrandEc = StrandEc()
+    override def csw: CswServices                      = ???
+  }
+
   "ScriptDsl" must {
     "allow adding and executing setup handler" in {
       var receivedPrefix: Option[Prefix] = None
 
-      val script: ScriptDsl = new ScriptDsl {
-        override def csw: CswServices             = ???
+      val script: ScriptDsl = new TestScriptDsl {
+
         override val loopInterval: FiniteDuration = 100.millis
 
         handleSetupCommand("iris") { cmd =>
@@ -26,6 +32,7 @@ class ScriptDslTest extends BaseTestSuite {
             ()
           }
         }
+
       }
       val prefix    = Prefix("iris.move")
       val irisSetup = Setup(prefix, CommandName("iris"), None)
@@ -37,15 +44,16 @@ class ScriptDslTest extends BaseTestSuite {
     "allow adding and executing observe handler" in {
       var receivedPrefix: Option[Prefix] = None
 
-      val script: ScriptDsl = new ScriptDsl {
-        override def csw: CswServices             = ???
-        override val loopInterval: FiniteDuration = 100.millis
+      val script: TestScriptDsl = new TestScriptDsl {
+        override protected implicit def strandEc: StrandEc = StrandEc()
+        override val loopInterval: FiniteDuration          = 100.millis
         handleObserveCommand("iris") { cmd =>
           spawn {
             receivedPrefix = Some(cmd.source)
             ()
           }
         }
+
       }
       val prefix      = Prefix("iris.move")
       val irisObserve = Observe(prefix, CommandName("iris"), None)
@@ -57,9 +65,9 @@ class ScriptDslTest extends BaseTestSuite {
     "allow adding and executing multiple shutdown handlers in order" in {
       val orderOfShutdownCalled = ArrayBuffer.empty[Int]
 
-      val script: ScriptDsl = new ScriptDsl {
-        override def csw: CswServices             = ???
-        override val loopInterval: FiniteDuration = 100.millis
+      val script: TestScriptDsl = new TestScriptDsl {
+        override protected implicit def strandEc: StrandEc = StrandEc()
+        override val loopInterval: FiniteDuration          = 100.millis
         handleShutdown {
           spawn {
             orderOfShutdownCalled += 1
@@ -71,6 +79,7 @@ class ScriptDslTest extends BaseTestSuite {
             orderOfShutdownCalled += 2
           }
         }
+
       }
 
       script.executeShutdown().futureValue
@@ -80,8 +89,7 @@ class ScriptDslTest extends BaseTestSuite {
     "allow adding and executing multiple abort handlers in order" in {
       val orderOfAbortCalled = ArrayBuffer.empty[Int]
 
-      val script: ScriptDsl = new ScriptDsl {
-        override def csw: CswServices             = ???
+      val script: TestScriptDsl = new TestScriptDsl {
         override val loopInterval: FiniteDuration = 100.millis
         handleAbort {
           spawn {
@@ -103,8 +111,7 @@ class ScriptDslTest extends BaseTestSuite {
     "allow running operations sequentially | ESW-88" in {
 
       val latch = new CountDownLatch(3)
-      val script: ScriptDsl = new ScriptDsl {
-        override def csw: CswServices             = ???
+      val script: TestScriptDsl = new TestScriptDsl {
         override val loopInterval: FiniteDuration = 100.millis
         def decrement: Future[Unit]               = Future { latch.countDown() }
 

@@ -10,5 +10,6 @@ class StrandEc private (private[ocs] val executorService: ScheduledExecutorServi
 }
 
 object StrandEc {
-  def apply(): StrandEc = new StrandEc(Executors.newSingleThreadScheduledExecutor())
+  def apply(): StrandEc                                          = new StrandEc(Executors.newSingleThreadScheduledExecutor())
+  def apply(executorService: ScheduledExecutorService): StrandEc = new StrandEc(executorService)
 }

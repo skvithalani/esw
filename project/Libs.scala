@@ -15,6 +15,7 @@ object Libs {
   val `case-app`        = "com.github.alexarchambault" %% "case-app" % "2.0.0-M9"
   val `silencer-plugin` = compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion)
   val `silencer-lib`    = "com.github.ghik" %% "silencer-lib" % silencerVersion % Compile
+  val `script-dsl`      = "com.github.tmtsoftware.esw" % "script-dsl" % "1.0"
 }
 
 object Csw {

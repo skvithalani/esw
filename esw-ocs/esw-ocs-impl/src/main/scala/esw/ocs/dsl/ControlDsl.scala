@@ -9,8 +9,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.experimental.macros
 
 trait ControlDsl {
-  implicit lazy val strandEc: StrandEc               = StrandEc()
-  protected implicit lazy val toEc: ExecutionContext = strandEc.ec
+  protected implicit def strandEc: StrandEc
+  protected implicit lazy val ec: ExecutionContext = strandEc.ec
+
   private[ocs] def loopInterval: FiniteDuration
 
   protected final def par[T](fs: List[Future[T]]): Future[List[T]] = Future.sequence(fs)

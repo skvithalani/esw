@@ -36,4 +36,9 @@ trait EventServiceDsl {
     val value: Set[EventKey] = eventKeys.toSet.map(stringToEventKey(_))
     subscriber.get(value)
   }
+
+  // ======================
+  private[esw] def onEvent0(eventKeys: String*)(callback: Event => Unit)(implicit ec: ExecutionContext): EventSubscription =
+    subscriber.subscribeAsync(eventKeys.toSet.map(stringToEventKey(_)), event => Future(callback(event)))
+
 }

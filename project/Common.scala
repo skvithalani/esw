@@ -3,7 +3,7 @@ import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
 import sbt.librarymanagement.ScmInfo
 import sbt.plugins.JvmPlugin
-import sbt.{AutoPlugin, Setting, SettingKey, Test, Tests, settingKey, url, _}
+import sbt.{AutoPlugin, Resolver, Setting, SettingKey, Test, Tests, settingKey, url, _}
 import sbtunidoc.GenJavadocPlugin.autoImport.unidocGenjavadocVersion
 
 object Common extends AutoPlugin {
@@ -26,6 +26,7 @@ object Common extends AutoPlugin {
     scmInfo := Some(
       ScmInfo(url(EswKeys.homepageValue), "git@github.com:tmtsoftware/esw.git")
     ),
+    resolvers += Resolver.mavenLocal,
     resolvers += "jitpack" at "https://jitpack.io",
     resolvers += "bintray" at "http://jcenter.bintray.com",
     autoCompilerPlugins := true,
