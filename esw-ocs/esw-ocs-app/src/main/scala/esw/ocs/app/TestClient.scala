@@ -28,8 +28,9 @@ object TestClient extends App {
 
   private val cmd1 = Setup(Prefix("esw.a.a"), CommandName("command-1"), None)
   private val cmd2 = Setup(Prefix("esw.a.a"), CommandName("command-2"), None)
+  private val cmd3 = Setup(Prefix("esw.a.a"), CommandName("command-3"), None)
 
   private val factory: SequencerCommandServiceImpl = SequencerCommandServiceFactory.make(location)
 
-  factory.submit(Sequence(cmd1, cmd2)).onComplete(_ => system.terminate())
+  factory.submit(Sequence(cmd1, cmd2, cmd3)).onComplete(_ => system.terminate())
 }

@@ -14,12 +14,9 @@ import csw.time.scheduler.TimeServiceSchedulerFactory
 import esw.highlevel.dsl.{EventServiceDsl, LocationServiceDsl, TimeServiceDsl}
 import esw.ocs.core.SequenceOperator
 import esw.ocs.internal.SequencerCommandServiceDsl
-import esw.ocs.macros.StrandEc
 
-import scala.annotation.varargs
 import scala.compat.java8.FutureConverters.FutureOps
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.{SetHasAsJava, _}
 import scala.jdk.FunctionConverters.enrichAsScalaFromConsumer
 
 class CswServices(
@@ -35,14 +32,13 @@ class CswServices(
     with TimeServiceDsl {
 
   import actorSystem.executionContext
+
   // ============================
-  @varargs
-  def jGetEvent(eventKeys: String*): CompletionStage[util.Set[Event]] = getEvent(eventKeys: _*).map(_.asJava).toJava
-
+  def jGetEvent(eventKeys: util.Set[java.lang.String]): CompletionStage[util.Set[Event]] =
+    getEvent(eventKeys.asScala.toSeq: _*).map(_.asJava).toJava
   def jPublishEvent(event: Event): CompletionStage[Done] = publishEvent(event).toJava
-
-  @varargs
-  def jOnEvent(eventKeys: String*)(callback: Consumer[Event]): EventSubscription = onEvent0(eventKeys: _*)(callback.asScala)
+  def jOnEvent(eventKeys: util.Set[java.lang.String])(callback: Consumer[Event]): EventSubscription =
+    onEvent0(eventKeys.asScala.toSeq: _*)(callback.asScala)
 }
 //    sequenceId: String,
 //    observingMode: String
