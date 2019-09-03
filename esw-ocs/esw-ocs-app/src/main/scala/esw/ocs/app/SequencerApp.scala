@@ -1,5 +1,7 @@
 package esw.ocs.app
 
+import java.util.function
+
 import caseapp.{CommandApp, RemainingArgs}
 import csw.framework.internal.wiring.ActorRuntime
 import csw.location.client.utils.LocationServerStatus
@@ -7,7 +9,9 @@ import csw.location.models.AkkaLocation
 import csw.logging.api.scaladsl.Logger
 import esw.ocs.api.models.responses.RegistrationError
 import esw.ocs.app.SequencerAppCommand._
+import esw.ocs.dsl.{CswServices, Sample1, SampleKt, ScriptDsl, ScriptKt}
 import esw.ocs.internal.{SequenceComponentWiring, SequencerWiring}
+import kotlin.jvm.functions
 
 import scala.util.control.NonFatal
 
@@ -28,7 +32,10 @@ object SequencerApp extends CommandApp[SequencerAppCommand] {
         startSequenceComponent(wiring, enableLogging)
 
       case Sequencer(id, mode) =>
-        val wiring = new SequencerWiring(id, mode, None)
+        val wiring = SequencerWiring.make(id, mode, None) { cs =>
+          val factory: functions.Function1[CswServices, ScriptKt] = new Sample1(Array("")).$$result.getFactory
+          factory.invoke(cs)
+        }
         startSequencer(wiring, enableLogging)
     }
 
