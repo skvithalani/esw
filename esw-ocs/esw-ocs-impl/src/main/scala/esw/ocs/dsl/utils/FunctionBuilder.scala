@@ -5,7 +5,7 @@ import scala.reflect.ClassTag
 
 private[ocs] class FunctionBuilder[I, O] {
 
-  private val handlers: mutable.Buffer[PartialFunction[I, O]] = mutable.Buffer.empty
+  val handlers: mutable.Buffer[PartialFunction[I, O]] = mutable.Buffer.empty
 
   private def combinedHandler: PartialFunction[I, O] = handlers.foldLeft(PartialFunction.empty[I, O])(_ orElse _)
 
@@ -14,4 +14,9 @@ private[ocs] class FunctionBuilder[I, O] {
   }
 
   def build(default: I => O): I => O = input => combinedHandler.lift(input).getOrElse(default(input))
+
+  def ++(that: FunctionBuilder[I, O]): FunctionBuilder[I, O] = {
+    this.handlers ++= that.handlers
+    this
+  }
 }
