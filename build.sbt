@@ -2,6 +2,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 lazy val aggregateProjects: Seq[ProjectReference] =
   Seq(
+    `esw-ocs-admin`,
     `esw-utils`,
     `esw-ocs`,
     `esw-gateway-server`,
@@ -108,28 +109,6 @@ lazy val `esw-utils` = project
   .settings(libraryDependencies ++= Dependencies.Utils.value)
   .dependsOn(`esw-ocs-api`.jvm % "compile->compile;test->test", `esw-ocs-macros`)
 
-lazy val `msocket` = project
-  .in(file("msocket"))
-  .aggregate(
-    `msocket-api`,
-    `msocket-impl`
-  )
-
-lazy val `msocket-api` = project
-  .in(file("msocket/msocket-api"))
-  .enablePlugins(PublishBintray)
-  .settings(
-    libraryDependencies ++= Dependencies.MsocketApi.value
-  )
-
-lazy val `msocket-impl` = project
-  .in(file("msocket/msocket-impl"))
-  .enablePlugins(PublishBintray)
-  .settings(
-    libraryDependencies ++= Dependencies.MsocketImpl.value
-  )
-  .dependsOn(`msocket-api`)
-
 lazy val `esw-gateway` = project
   .aggregate(
     `esw-gateway-api`,
@@ -142,7 +121,6 @@ lazy val `esw-gateway-api` = project
   .settings(
     libraryDependencies ++= Dependencies.EswGatewayApi.value
   )
-  .dependsOn(`msocket-api`)
 
 lazy val `esw-gateway-impl` = project
   .in(file("esw-gateway/esw-gateway-impl"))
@@ -154,7 +132,34 @@ lazy val `esw-gateway-impl` = project
 lazy val `esw-gateway-server2` = project
   .in(file("esw-gateway/esw-gateway-server2"))
   .enablePlugins(MaybeCoverage)
-  .dependsOn(`msocket-impl`, `esw-gateway-impl`, `esw-http-core` % "compile->compile;test->test")
+  .dependsOn(`esw-gateway-impl`, `esw-http-core` % "compile->compile;test->test")
+
+lazy val `esw-ocs-admin` = project
+  .in(file("esw-ocs-admin"))
+  .aggregate(
+    `esw-ocs-admin-api`,
+    `esw-ocs-admin-impl`,
+    `esw-ocs-admin-server`
+  )
+
+lazy val `esw-ocs-admin-api` = project
+  .in(file("esw-ocs-admin/esw-ocs-admin-api"))
+  .settings(
+    libraryDependencies ++= Dependencies.EswOcsAdminApi.value
+  )
+  .dependsOn(`esw-ocs-api`.jvm)
+
+lazy val `esw-ocs-admin-impl` = project
+  .in(file("esw-ocs-admin/esw-ocs-admin-impl"))
+  .dependsOn(`esw-ocs-admin-api`, `esw-ocs-impl`)
+
+lazy val `esw-ocs-admin-server` = project
+  .in(file("esw-ocs-admin/esw-ocs-admin-server"))
+  .enablePlugins(MaybeCoverage)
+  .settings(
+    libraryDependencies ++= Dependencies.EswOcsAdminServer.value
+  )
+  .dependsOn(`esw-ocs-admin-impl`, `esw-http-core` % "compile->compile;test->test")
 
 /* ================= Paradox Docs ============== */
 lazy val docs = project.enablePlugins(NoPublish, ParadoxSite)

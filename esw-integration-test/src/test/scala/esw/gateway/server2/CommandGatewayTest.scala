@@ -1,6 +1,7 @@
 package esw.gateway.server2
 
 import akka.actor
+import akka.actor.CoordinatedShutdown.UnknownReason
 import akka.actor.typed.scaladsl.adapter.TypedActorSystemOps
 import akka.actor.typed.{ActorSystem, SpawnProtocol}
 import akka.stream.Materializer
@@ -19,13 +20,12 @@ import esw.gateway.api.codecs.RestlessCodecs
 import esw.gateway.api.messages.CommandAction.{Oneway, Submit, Validate}
 import esw.gateway.api.messages.{PostRequest, WebsocketRequest}
 import esw.http.core.BaseTestSuite
-import esw.http.core.commons.CoordinatedShutdownReasons
-import mscoket.impl.post.PostClientJvm
-import mscoket.impl.ws.WebsocketClientJvm
+import mscoket.impl.post.PostClient
+import mscoket.impl.ws.WebsocketClient
 import msocket.api.RequestClient
 
+import scala.concurrent.Future
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.concurrent.{Await, Future}
 
 class CommandGatewayTest extends BaseTestSuite with RestlessCodecs {
 
@@ -41,29 +41,24 @@ class CommandGatewayTest extends BaseTestSuite with RestlessCodecs {
 
   override def beforeAll(): Unit = {
     frameworkTestKit.start()
+    port = 6490
+    gatewayWiring = new GatewayWiring(Some(port))
+    gatewayWiring.httpService.registeredLazyBinding.futureValue
   }
 
   override protected def afterAll(): Unit = {
-    frameworkTestKit.shutdown()
+    gatewayWiring.httpService.shutdown(UnknownReason).futureValue
     actorSystem.terminate()
-  }
-
-  override def beforeEach(): Unit = {
-    port = 6490
-    gatewayWiring = new GatewayWiring(Some(port))
-    Await.result(gatewayWiring.httpService.registeredLazyBinding, timeout)
-  }
-
-  override def afterEach(): Unit = {
-    gatewayWiring.httpService.shutdown(CoordinatedShutdownReasons.ApplicationFinishedReason)
+    actorSystem.whenTerminated.futureValue
+    frameworkTestKit.shutdown()
   }
 
   "CommandApi" must {
 
     "handle validate, oneway, submit, subscribe current state and queryFinal commands | ESW-216" in {
-      val postClient: RequestClient[PostRequest] = new PostClientJvm[PostRequest](s"http://localhost:$port/post")
+      val postClient: RequestClient[PostRequest] = new PostClient[PostRequest](s"http://localhost:$port/post")
       val websocketClient: RequestClient[WebsocketRequest] =
-        new WebsocketClientJvm[WebsocketRequest](s"ws://localhost:$port/websocket")
+        new WebsocketClient[WebsocketRequest](s"ws://localhost:$port/websocket")
       val commandClient = new CommandClient(postClient, websocketClient)
 
       frameworkTestKit.spawnStandalone(ConfigFactory.load("standalone.conf"))

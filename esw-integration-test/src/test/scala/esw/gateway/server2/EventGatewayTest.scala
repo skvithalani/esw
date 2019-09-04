@@ -1,5 +1,6 @@
 package esw.gateway.server2
 
+import akka.actor.CoordinatedShutdown.UnknownReason
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter.TypedActorSystemOps
@@ -14,9 +15,8 @@ import esw.gateway.api.clients.EventClient
 import esw.gateway.api.codecs.RestlessCodecs
 import esw.gateway.api.messages.{EmptyEventKeys, PostRequest, WebsocketRequest}
 import esw.http.core.BaseTestSuite
-import esw.http.core.commons.CoordinatedShutdownReasons
-import mscoket.impl.post.PostClientJvm
-import mscoket.impl.ws.WebsocketClientJvm
+import mscoket.impl.post.PostClient
+import mscoket.impl.ws.WebsocketClient
 import msocket.api.RequestClient
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -59,21 +59,21 @@ class EventGatewayTest extends BaseTestSuite with RestlessCodecs {
 
   override def afterEach(): Unit = {
     eventTestKit.stopRedis()
-    gatewayWiring.httpService.shutdown(CoordinatedShutdownReasons.ApplicationFinishedReason).futureValue
+    gatewayWiring.httpService.shutdown(UnknownReason).futureValue
   }
 
   override def afterAll(): Unit = {
-    eventTestKit.shutdown()
-    locationTestKit.shutdownLocationServer()
     system.terminate()
     system.whenTerminated.futureValue
+    eventTestKit.shutdown()
+    locationTestKit.shutdownLocationServer()
   }
 
   "EventApi" must {
     "publish, get, subscribe and pattern subscribe events | ESW-216" in {
-      val postClient: RequestClient[PostRequest] = new PostClientJvm[PostRequest](s"http://localhost:$port/post")
+      val postClient: RequestClient[PostRequest] = new PostClient[PostRequest](s"http://localhost:$port/post")
       val websocketClient: RequestClient[WebsocketRequest] =
-        new WebsocketClientJvm[WebsocketRequest](s"ws://localhost:$port/websocket")
+        new WebsocketClient[WebsocketRequest](s"ws://localhost:$port/websocket")
       val eventClient: EventClient = new EventClient(postClient, websocketClient)
 
       val eventsF  = eventClient.subscribe(eventKeys, None).take(4).runWith(Sink.seq)
@@ -98,9 +98,9 @@ class EventGatewayTest extends BaseTestSuite with RestlessCodecs {
     }
 
     "subscribe events returns an EmptyEventKeys error on sending no event keys in subscription| ESW-216" in {
-      val postClient: RequestClient[PostRequest] = new PostClientJvm[PostRequest](s"http://localhost:$port/post")
+      val postClient: RequestClient[PostRequest] = new PostClient[PostRequest](s"http://localhost:$port/post")
       val websocketClient: RequestClient[WebsocketRequest] =
-        new WebsocketClientJvm[WebsocketRequest](s"ws://localhost:$port/websocket")
+        new WebsocketClient[WebsocketRequest](s"ws://localhost:$port/websocket")
       val eventClient: EventClient = new EventClient(postClient, websocketClient)
 
       eventClient.subscribe(Set.empty, None).toMat(Sink.head)(Keep.left).run().futureValue.get should ===(EmptyEventKeys())

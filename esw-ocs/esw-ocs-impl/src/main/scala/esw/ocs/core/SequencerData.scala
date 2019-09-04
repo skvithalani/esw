@@ -4,8 +4,8 @@ import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.util.Timeout
 import csw.command.client.CommandResponseManager
 import csw.command.client.messages.sequencer.SequencerMsg
-import csw.params.commands.CommandResponse
 import csw.params.commands.CommandResponse.{Completed, Error, Started, SubmitResponse}
+import csw.params.commands.{CommandResponse, Sequence}
 import csw.params.core.models.Id
 import esw.ocs.api.models.StepStatus.{Finished, InFlight}
 import esw.ocs.api.models.responses._
@@ -33,6 +33,9 @@ private[core] case class SequencerData(
 
   private val sequenceId   = stepList.map(_.runId)
   private val emptyChildId = Id("empty-child") // fixme
+
+  def createStepList(sequence: Sequence): Either[DuplicateIdsFound.type, SequencerData] =
+    StepList(sequence).map(currentStepList => copy(stepList = Some(currentStepList)))
 
   def startSequence(replyTo: ActorRef[Ok.type]): SequencerData = {
     replyTo ! Ok

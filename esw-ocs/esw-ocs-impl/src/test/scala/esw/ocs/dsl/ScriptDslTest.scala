@@ -8,8 +8,8 @@ import esw.ocs.api.BaseTestSuite
 import esw.ocs.macros.StrandEc
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
 import scala.concurrent.duration.{DurationDouble, FiniteDuration}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ScriptDslTest extends BaseTestSuite {
 
@@ -17,6 +17,8 @@ class ScriptDslTest extends BaseTestSuite {
     override protected implicit def strandEc: StrandEc = StrandEc()
     override def csw: CswServices                      = ???
   }
+
+  override implicit def patienceConfig: PatienceConfig = PatienceConfig(20.seconds)
 
   "ScriptDsl" must {
     "allow adding and executing setup handler" in {
@@ -113,7 +115,8 @@ class ScriptDslTest extends BaseTestSuite {
       val latch = new CountDownLatch(3)
       val script: TestScriptDsl = new TestScriptDsl {
         override val loopInterval: FiniteDuration = 100.millis
-        def decrement: Future[Unit]               = Future { latch.countDown() }
+
+        def decrement: Future[Unit] = Future { Thread.sleep(100); latch.countDown() }(ExecutionContext.global)
 
         handleSetupCommand("iris") { _ =>
           spawn {
