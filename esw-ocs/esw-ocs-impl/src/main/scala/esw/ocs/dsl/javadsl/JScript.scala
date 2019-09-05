@@ -1,11 +1,13 @@
 package esw.ocs.dsl.javadsl
 
+import java.time
 import java.util.Optional
-import java.util.concurrent.CompletionStage
+import java.util.concurrent.{CompletionStage, TimeUnit}
 import java.util.function.Supplier
 
+import akka.Done
 import csw.params.commands.{Observe, SequenceCommand, Setup}
-import esw.ocs.dsl.{CswServices, ScriptDsl}
+import esw.ocs.dsl.{CswServices, ScriptDsl, StopIf}
 
 import scala.compat.java8.FutureConverters.{CompletionStageOps, FutureOps}
 import scala.concurrent.Future
@@ -46,6 +48,10 @@ abstract class JScript(override val csw: CswServices) extends ScriptDsl {
   protected def handleAbort(handler: Supplier[CompletionStage[Void]]): Void = {
     handleAbort(handler.get())
     null
+  }
+
+  protected def jLoop(duration: time.Duration, block: Supplier[CompletionStage[StopIf]]): CompletionStage[Void] = {
+    loop(FiniteDuration(duration.toNanos, TimeUnit.NANOSECONDS))(block.get().toScala).toJava.thenApply(_ => null)
   }
 
   implicit private def mapToScala(f: CompletionStage[Void]): Future[Unit] = f.toScala.map(_ => ())
