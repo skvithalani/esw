@@ -7,11 +7,7 @@ import csw.location.models.AkkaLocation
 import csw.logging.api.scaladsl.Logger
 import esw.ocs.api.models.responses.RegistrationError
 import esw.ocs.app.SequencerAppCommand._
-import esw.ocs.dsl.CswServices
-import esw.ocs.dsl.core.ScriptKt
-import esw.ocs.dsl.scripts.{Script3, Script5}
 import esw.ocs.internal.{SequenceComponentWiring, SequencerWiring}
-import kotlin.jvm.functions
 
 import scala.util.control.NonFatal
 
