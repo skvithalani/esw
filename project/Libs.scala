@@ -18,7 +18,6 @@ object Libs {
   val `silencer-lib`     = "com.github.ghik" %% "silencer-lib" % SilencerVersion % Compile
   val `msocket-api`      = dep("com.github.tmtsoftware.msocket" %%% "msocket-api" % MsocketVersion)
   val `msocket-impl-jvm` = "com.github.tmtsoftware.msocket" %% "msocket-impl-jvm" % MsocketVersion
-  val `script-dsl`       = "com.github.tmtsoftware.esw" % "script-dsl" % "0.1-SNAPSHOT"
 }
 
 object Csw {
