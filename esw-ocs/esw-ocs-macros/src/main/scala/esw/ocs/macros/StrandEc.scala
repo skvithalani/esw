@@ -12,3 +12,5 @@ class StrandEc private (private[ocs] val executorService: ScheduledExecutorServi
 object StrandEc {
   def apply(): StrandEc = new StrandEc(Executors.newSingleThreadScheduledExecutor())
 }
+
+//todo: Add csw logging step in report failure so that if executorService fails it will error log in the system

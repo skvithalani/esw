@@ -1,10 +1,12 @@
 package esw.ocs.dsl
 
+import java.lang.management.ManagementFactory
 import java.util.concurrent.CountDownLatch
 
 import csw.params.commands.{CommandName, Observe, Setup}
 import csw.params.core.models.Prefix
 import esw.ocs.api.BaseTestSuite
+import esw.ocs.macros.StrandEc
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.{DurationDouble, FiniteDuration}
@@ -105,17 +107,33 @@ class ScriptDslTest extends BaseTestSuite {
       val latch = new CountDownLatch(3)
       val script: ScriptDsl = new ScriptDsl {
         override def csw: CswServices             = ???
-        override val loopInterval: FiniteDuration = 100.millis
+        override val loopInterval: FiniteDuration = 1.millis
 
-        def decrement: Future[Unit] = Future { Thread.sleep(100); latch.countDown() }(ExecutionContext.global)
+        def decrement: Future[Unit] = Future { latch.countDown() }(ExecutionContext.global)
+
+        loop(1.seconds) {
+          spawn {
+            val running = Thread.getAllStackTraces.keySet()
+            running.forEach(a => {
+              println(
+                a.getName + "   " + a.getState + "   "
+              )
+            })
+
+            stopIf(false)
+          }
+        }
 
         handleSetupCommand("iris") { _ =>
           spawn {
-
+            println(s"Handle setup ---------> ${Thread.currentThread().getName}")
+            println("blocking")
+            Thread.sleep(20000000)
             // await utility provided in ControlDsl, asynchronously blocks for future to complete
             decrement.await
             decrement.await
             decrement.await
+            println("Handle setup ---------> Finished")
           }
         }
       }
@@ -123,8 +141,10 @@ class ScriptDslTest extends BaseTestSuite {
       val prefix    = Prefix("iris.move")
       val irisSetup = Setup(prefix, CommandName("iris"), None)
       script.execute(irisSetup).futureValue
+      println(s"^^^^^^^^^^^^^^^^^^^ ${Thread.currentThread().getName}")
+      Thread.sleep(1000000000)
 
-      latch.getCount should ===(0L)
+//      latch.getCount should ===(0L)
     }
   }
 

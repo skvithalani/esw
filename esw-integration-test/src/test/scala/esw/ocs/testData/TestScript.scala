@@ -1,5 +1,7 @@
 package esw.ocs.testData
 
+import java.lang.management.ManagementFactory
+
 import csw.params.commands.CommandResponse.{Completed, Error}
 import csw.params.commands.{CommandName, Sequence, Setup}
 import csw.params.core.generics.KeyType.{BooleanKey, StringKey, UTCTimeKey}
@@ -13,6 +15,22 @@ import esw.ocs.dsl.{CswServices, Script}
 import scala.concurrent.duration.DurationDouble
 
 class TestScript(csw: CswServices) extends Script(csw) {
+
+  loop(1.seconds) {
+    spawn {
+      val running = Thread.getAllStackTraces.keySet()
+      running.forEach(a => {
+        val bean = ManagementFactory.getThreadMXBean
+        println(
+          a.getThreadGroup + "   " +
+            a.getName + "   " +
+            a.getState + "   " +
+            (bean.getCurrentThreadCpuTime / (1000 * 1000)) + "ms"
+        )
+      })
+      stopIf(false)
+    }
+  }
 
   handleSetupCommand("command-1") { command =>
     spawn {

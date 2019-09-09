@@ -19,7 +19,7 @@ trait ControlDsl {
   protected final def loop(block: => Future[StopIf]): Future[Done] = loop(loopInterval)(block)
 
   protected final def loop(minimumInterval: FiniteDuration)(block: => Future[StopIf]): Future[Done] =
-    loopWithoutDelay(FutureUtils.delayedResult(minimumInterval max loopInterval)(block)(strandEc))
+    Async.async { loopWithoutDelay(FutureUtils.delayedResult(minimumInterval max loopInterval)(block)(strandEc)).await }
 
   protected final def stopIf(condition: Boolean): StopIf = StopIf(condition)
 
