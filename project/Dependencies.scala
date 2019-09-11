@@ -29,13 +29,19 @@ object Dependencies {
   )
 
   val OcsMacros: Def.Initialize[Seq[ModuleID]] = Def.setting(
-    Seq(Libs.`scala-reflect`, Libs.scalatest % Test)
+    Seq(
+      Kamino.`kamon-executors`,
+      Libs.`scala-reflect`, Libs.scalatest % Test
+    )
   )
 
   val OcsApp: Def.Initialize[Seq[ModuleID]] = Def.setting(
     Seq(
       Libs.`case-app`,
       Libs.`msocket-impl-jvm`,
+      Kamino.`kamino` ,
+      Kamino.`kamon-apm-reporter`,
+      Kamino.`kamon-executors`,
       Libs.scalatest                  % Test,
       Libs.`mockito-scala`            % Test,
       Akka.`akka-actor-testkit-typed` % Test

@@ -70,3 +70,10 @@ object Borer {
   val `borer-derivation`  = Org %% "borer-derivation"  % Version
   val `borer-compat-akka` = Org %% "borer-compat-akka" % Version
 }
+
+object Kamino {
+  val `kamino` = "io.kamon" %% "kamon-bundle" % "2.0.1"
+  val `kamon-apm-reporter` = "io.kamon" %% "kamon-apm-reporter" % "2.0.0"
+  val `kamon-executors` = "io.kamon" %% "kamon-executors" % "2.0.0"
+  val `kamon-jdbc` = "io.kamon" %% "kamon-jdbc" % "1.0.0"
+}

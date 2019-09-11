@@ -101,7 +101,6 @@ class ScriptDslTest extends BaseTestSuite {
     }
 
     "allow running operations sequentially | ESW-88" in {
-
       val latch = new CountDownLatch(3)
       val script: ScriptDsl = new ScriptDsl {
         override def csw: CswServices             = ???

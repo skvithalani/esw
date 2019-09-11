@@ -2,6 +2,8 @@ package esw.ocs.macros
 
 import java.util.concurrent.{Executors, ScheduledExecutorService}
 
+import kamon.instrumentation.executor.ExecutorInstrumentation
+
 import scala.concurrent.ExecutionContext
 
 class StrandEc private (private[ocs] val executorService: ScheduledExecutorService) {
@@ -10,5 +12,10 @@ class StrandEc private (private[ocs] val executorService: ScheduledExecutorServi
 }
 
 object StrandEc {
-  def apply(): StrandEc = new StrandEc(Executors.newSingleThreadScheduledExecutor())
+
+  def apply(): StrandEc = {
+    val executor = Executors.newSingleThreadScheduledExecutor()
+    ExecutorInstrumentation.instrument(executor, "poorva-test-executor")
+    new StrandEc(executor)
+  }
 }
