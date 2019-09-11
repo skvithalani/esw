@@ -10,9 +10,9 @@ class TestScript(csw: CswServices) extends Script(csw) {
   override val loopInterval: FiniteDuration = 100.millis
   val latch                                 = new CountDownLatch(3)
 
-  loop(100.millis) {
+  loop(1.second) {
     spawn {
-      println("thread loop")
+      println("loop")
       stopIf(false)
     }
   }

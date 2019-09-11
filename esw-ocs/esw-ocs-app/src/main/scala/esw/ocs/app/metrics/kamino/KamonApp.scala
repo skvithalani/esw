@@ -1,5 +1,6 @@
 package esw.ocs.app.metrics.kamino
 
+import akka.actor.CoordinatedShutdown
 import akka.actor.typed.{ActorSystem, SpawnProtocol}
 import csw.command.client.internal.SequencerCommandServiceImpl
 import csw.location.models.AkkaLocation
@@ -9,6 +10,7 @@ import esw.ocs.api.protocol.RegistrationError
 import esw.ocs.app.SequencerApp.sequencerWiringWithHttp
 import esw.ocs.app.wiring.SequencerWiring
 import kamon.Kamon
+import akka.actor.typed.scaladsl.adapter.TypedActorSystemOps
 
 object KamonApp extends App {
 
@@ -27,4 +29,5 @@ object KamonApp extends App {
     commandService.submit(sequence)
   }
 
+  CoordinatedShutdown(actorSystem.toUntyped)
 }

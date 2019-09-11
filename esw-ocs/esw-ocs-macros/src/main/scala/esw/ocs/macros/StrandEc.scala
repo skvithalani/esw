@@ -1,6 +1,9 @@
 package esw.ocs.macros
 
 import akka.actor
+import akka.actor.Scheduler
+import akka.actor.typed.SpawnProtocol.Spawn
+import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter.TypedActorSystemOps
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, SpawnProtocol}
@@ -17,9 +20,11 @@ class StrandEc(val executor: ExecutionContextExecutor)(implicit val _actorSystem
 object StrandEc {
   implicit val actorSystem: ActorSystem[SpawnProtocol] = ActorSystem(SpawnProtocol.behavior, "strand-ec-actor-system")
 
-  def actorBased()(implicit actorSystem: ActorSystem[_]): ExecutionContextExecutor = {
-    implicit val timeout: Timeout = 5.seconds
-    val actorRef                  = Await.result(actorSystem.systemActorOf(ExecutorActor.behavior, "strand-ec-actor"), 5.seconds)
+  def actorBased()(implicit actorSystem: ActorSystem[SpawnProtocol]): ExecutionContextExecutor = {
+    implicit val timeout: Timeout     = 5.seconds
+    implicit val scheduler: Scheduler = actorSystem.scheduler
+    val actorRef: ActorRef[Runnable]  = Await.result(actorSystem ? Spawn(ExecutorActor.behavior, "strand-ec-actor"), 5.second)
+    println(actorRef)
     fromActor(actorRef)
   }
 
