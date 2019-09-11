@@ -11,7 +11,7 @@ object AsyncMacros {
 
   def asyncStrand[T: c.WeakTypeTag](c: blackbox.Context)(body: c.Expr[T])(strandEc: c.Expr[StrandEc]): c.Tree = {
     import c.universe._
-    val ec = reify(strandEc.splice.ec)
+    val ec = reify(strandEc.splice.executor)
     q"_root_.esw.ocs.impl.dsl.Async.async($body)($ec)"
   }
 

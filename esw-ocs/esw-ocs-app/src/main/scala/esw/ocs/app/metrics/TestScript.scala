@@ -1,8 +1,8 @@
 package esw.ocs.app.metrics
 
-import java.util.concurrent.{CountDownLatch, ThreadPoolExecutor}
+import java.util.concurrent.CountDownLatch
 
-import esw.ocs.dsl.{CswServices, Script}
+import esw.ocs.impl.dsl.{CswServices, Script}
 
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 
@@ -10,9 +10,8 @@ class TestScript(csw: CswServices) extends Script(csw) {
   override val loopInterval: FiniteDuration = 100.millis
   val latch                                 = new CountDownLatch(3)
 
-  loop(1.minute) {
+  loop(100.millis) {
     spawn {
-      ThreadPoolExecutor.Thread.sleep(1000 * 60)
       println("thread loop")
       stopIf(false)
     }

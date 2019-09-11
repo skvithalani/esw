@@ -16,7 +16,7 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 class TimeServiceDslTest extends BaseTestSuite with TimeServiceDsl {
 
   implicit val scheduler: Scheduler         = mock[Scheduler]
-  private implicit val ec: ExecutionContext = StrandEc().ec
+  private implicit val ec: ExecutionContext = StrandEc().executor
 
   val cancellable: Cancellable                                 = mock[Cancellable]
   val timeServiceScheduler: TimeServiceScheduler               = mock[TimeServiceScheduler]
