@@ -71,3 +71,7 @@ object Borer {
   val `borer-derivation`  = Org %% "borer-derivation"  % Version
   val `borer-compat-akka` = Org %% "borer-compat-akka" % Version
 }
+
+object DropWizard {
+  val `dropwizard-core` = "io.dropwizard" % "dropwizard-core" % "2.0.0-rc9"
+}
