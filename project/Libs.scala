@@ -73,5 +73,9 @@ object Borer {
 }
 
 object DropWizard {
-  val `dropwizard-core` = "io.dropwizard" % "dropwizard-core" % "2.0.0-rc9"
+  val `dropwizard-core`         = "io.dropwizard"         % "dropwizard-core"         % "2.0.0-rc9"
+  val `metrics-graphite`        = "io.dropwizard.metrics" % "metrics-graphite"        % "3.1.0"
+  val `simpleclient_dropwizard` = "io.prometheus"         % "simpleclient_dropwizard" % "0.6.0"
+  val `simpleclient_servlet`    = "io.prometheus"         % "simpleclient_servlet"    % "0.6.0"
+  val `simpleclient`            = "io.prometheus"         % "simpleclient"            % "0.6.0"
 }

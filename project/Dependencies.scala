@@ -30,6 +30,10 @@ object Dependencies {
   val OcsMacros: Def.Initialize[Seq[ModuleID]] = Def.setting(
     Seq(
       DropWizard.`dropwizard-core`,
+      DropWizard.`metrics-graphite`,
+      DropWizard.`simpleclient_dropwizard`,
+      DropWizard.`simpleclient_servlet`,
+      DropWizard.`simpleclient`,
       Libs.`scala-reflect`,
       Libs.scalatest % Test
     )
