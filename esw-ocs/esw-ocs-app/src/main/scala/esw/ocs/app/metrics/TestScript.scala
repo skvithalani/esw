@@ -2,6 +2,7 @@ package esw.ocs.app.metrics
 
 import java.util.concurrent.CountDownLatch
 
+import csw.time.core.models.UTCTime
 import esw.ocs.impl.dsl.{CswServices, Script}
 
 import scala.concurrent.Future
@@ -40,5 +41,13 @@ class TestScript(csw: CswServices) extends Script(csw) {
       println("in future")
     }
   } //-----------> Runnable
- */
+   */
+  (1 to 10).foreach { x =>
+    //------> constructor time thread
+    Future {
+      println("------------------------------------------------>")
+      println(s"[$x] - ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
+      //--------> strandec
+    }
+  }
 }
