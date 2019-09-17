@@ -31,7 +31,7 @@ class TestScript(csw: CswServices) extends Script(csw) {
     spawn {
       println("looping")
       println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
-      csw.getNumber // --------> blocking call to simulate IO bound
+      csw.getNumberBlocking() // --------> blocking call to simulate IO bound
       println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
       stopIf(false)
     }
@@ -52,4 +52,22 @@ class TestScript(csw: CswServices) extends Script(csw) {
       //--------> strandec
     }
   } //----------> Runnable */
+
+  loop(2.second) {
+    //----> constructor time thread
+    spawn {
+      println("looping")
+      println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
+      csw.getNumberAsync().await // -------->  async call
+      println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
+      stopIf(false)
+    }
+  } //---------> Timed_Waiting & Waiting
+
+  loop(1.second) {
+    spawn {
+      println("I am alive")
+      stopIf(false)
+    }
+  }
 }

@@ -1,7 +1,5 @@
 package esw.ocs.app.metrics.kamino
 
-import java.util
-
 import akka.actor.typed.{ActorSystem, SpawnProtocol}
 import csw.command.client.internal.SequencerCommandServiceImpl
 import csw.location.models.AkkaLocation

@@ -25,7 +25,7 @@ class CswServices(
     with EventServiceDsl
     with TimeServiceDsl {
 
-  def getNumber(): Unit = {
+  def getNumberBlocking(): Unit = {
     println("sleeping")
     getThread("pool-10-thread-1").foreach { x =>
       println(s"[1000] - Before sleep ${UTCTime.now()} ${x.getName} --> ${x.getState} ")
@@ -35,6 +35,18 @@ class CswServices(
       println(s"[1000] - After sleep ${UTCTime.now()} ${x.getName} --> ${x.getState} ")
     }
   }
+
+  def getNumberAsync(): Future[Unit] =
+    Future {
+      println("sleeping")
+      getThread("pool-10-thread-1").foreach { x =>
+        println(s"[1000] - Before sleep ${UTCTime.now()} ${x.getName} --> ${x.getState} ")
+      }
+      Thread.sleep(5000)
+      getThread("pool-10-thread-1").foreach { x =>
+        println(s"[1000] - After sleep ${UTCTime.now()} ${x.getName} --> ${x.getState} ")
+      }
+    }(ExecutionContext.global)
 
   def getThread(name: String): Option[Thread] = {
     if (name == null) throw new NullPointerException("Null name")
