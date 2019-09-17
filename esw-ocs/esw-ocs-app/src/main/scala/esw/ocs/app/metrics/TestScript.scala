@@ -31,7 +31,7 @@ class TestScript(csw: CswServices) extends Script(csw) {
     spawn {
       println("looping")
       println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
-      csw.getNumber.await //-------> await on stranec getNumber ---> global ec
+      csw.getNumber // --------> blocking call to simulate IO bound
       println(s" ${UTCTime.now()} ${Thread.currentThread().getName} --> ${Thread.currentThread().getState}")
       stopIf(false)
     }

@@ -32,7 +32,7 @@ object KamonApp extends App {
     commandService.submit(sequence)
   }
 
-  Thread.sleep(3000)
+  Thread.sleep(5000)
 
   def getThread(name: String): Option[Thread] = {
     if (name == null) throw new NullPointerException("Null name")
@@ -42,7 +42,7 @@ object KamonApp extends App {
   }
 
   getThread("pool-10-thread-1").map { x =>
-    println(s"[1000] - ${UTCTime.now()} ${x.getName} --> ${x.isInterrupted} ")
+    println(s"[Kamon App] - ${UTCTime.now()} ${x.getName} --> ${x.getState} ")
   }
 
 }
