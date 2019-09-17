@@ -1,28 +1,44 @@
 package esw.ocs.app.metrics
 
-import java.util.concurrent.{CountDownLatch, ThreadPoolExecutor}
+import java.util.concurrent.CountDownLatch
 
-import esw.ocs.dsl.{CswServices, Script}
+import esw.ocs.impl.dsl.{CswServices, Script}
 
+import scala.concurrent.Future
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 
 class TestScript(csw: CswServices) extends Script(csw) {
   override val loopInterval: FiniteDuration = 100.millis
   val latch                                 = new CountDownLatch(3)
 
-  loop(1.minute) {
+  /*(1 to 100000000).foreach { _ =>
+    //------> constructor time thread
+    Future {
+      //--------> strandec
+      println("in future")
+    }
+  } //-----------> Runnable*/
+  /*loop(2.second) {
     spawn {
-      ThreadPoolExecutor.Thread.sleep(1000 * 60)
-      println("thread loop")
+      println("looping")
       stopIf(false)
     }
-  }
-  handleSetupCommand("iris") { _ =>
+  }//---------> Timed_Waiting*/
+
+  /*loop(2.second) {
+    //----> constructor time thread
     spawn {
-
-      // await utility provided in ControlDsl, asynchronously blocks for future to complete
-      println("done")
+      println("looping")
+      csw.getNumber.await //-------> await on stranec getNumber ---> global ec
+      stopIf(false)
     }
-  }
+  } //---------> Timed_Waiting & Waiting*/
 
+  /*(1 to 100000000).foreach { _ =>
+    spawn {
+      csw.getNumber.await
+      println("in future")
+    }
+  } //-----------> Runnable
+ */
 }

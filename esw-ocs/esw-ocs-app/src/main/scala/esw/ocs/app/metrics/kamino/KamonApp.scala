@@ -5,7 +5,7 @@ import csw.command.client.internal.SequencerCommandServiceImpl
 import csw.location.models.AkkaLocation
 import csw.params.commands.{CommandName, Sequence, Setup}
 import csw.params.core.models.Prefix
-import esw.ocs.api.models.responses.RegistrationError
+import esw.ocs.api.protocol.RegistrationError
 import esw.ocs.app.SequencerApp.sequencerWiringWithHttp
 import esw.ocs.app.wiring.SequencerWiring
 import kamon.Kamon
@@ -16,7 +16,7 @@ object KamonApp extends App {
   Kamon.init()
   println("*******Kamon initialized******")
   val wiring: SequencerWiring                               = sequencerWiringWithHttp("testSequencerId", "testObservingMode", None)
-  val registration: Either[RegistrationError, AkkaLocation] = wiring.start()
+  val registration: Either[RegistrationError, AkkaLocation] = wiring.sequencerServer.start()
 
   implicit val actorSystem: ActorSystem[SpawnProtocol] = ActorSystem(SpawnProtocol.behavior, "poorva-test-app")
 

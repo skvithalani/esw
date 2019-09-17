@@ -9,6 +9,8 @@ import esw.highlevel.dsl.{EventServiceDsl, LocationServiceDsl, TimeServiceDsl}
 import esw.ocs.impl.core.SequenceOperator
 import esw.ocs.impl.internal.SequencerCommandServiceDsl
 
+import scala.concurrent.{ExecutionContext, Future}
+
 class CswServices(
     private[ocs] val sequenceOperatorFactory: () => SequenceOperator,
     val crm: CommandResponseManager,
@@ -19,4 +21,11 @@ class CswServices(
 ) extends SequencerCommandServiceDsl
     with LocationServiceDsl
     with EventServiceDsl
-    with TimeServiceDsl
+    with TimeServiceDsl {
+
+  def getNumber: Future[Unit] =
+    Future {
+      println("sleeping")
+      Thread.sleep(5000)
+    }(ExecutionContext.global)
+}
