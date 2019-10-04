@@ -11,6 +11,8 @@ import csw.alarm.models.Key.AlarmKey
 import csw.event.api.exceptions.{EventServerNotAvailable, PublishFailure}
 import csw.location.models.ComponentId
 import csw.location.models.ComponentType.Assembly
+import csw.logging.macros.SourceFactory
+import csw.logging.models.{AnyId, Level}
 import csw.params.commands.CommandResponse.{Accepted, Started}
 import csw.params.commands.{CommandName, CommandResponse, Setup}
 import csw.params.core.models.{Id, ObsId, Prefix, Subsystem}
@@ -22,8 +24,9 @@ import esw.gateway.api.{AlarmApi, CommandApi, EventApi, LoggingApi}
 import esw.gateway.impl._
 import esw.gateway.server.handlers.PostHandlerImpl
 import esw.http.core.BaseTestSuite
+import io.bullet.borer.Dom.{IntElem, MapElem}
 import mscoket.impl.HttpCodecs
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => argsEq}
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar._
 
@@ -46,7 +49,7 @@ class PostRouteTest extends BaseTestSuite with ScalatestRouteTest with GatewayCo
   private val alarmApi: AlarmApi     = new AlarmImpl(alarmService)
   private val eventApi: EventApi     = new EventImpl(eventService, eventSubscriberUtil)
   private val commandApi: CommandApi = new CommandImpl(componentFactory.commandService)
-  private val loggingApi: LoggingApi = new LoggingImpl(new LoggerCache)
+  private val loggingApi: LoggingApi = new LoggingImpl(loggerCache)
   private val postHandlerImpl        = new PostHandlerImpl(alarmApi, commandApi, eventApi, loggingApi)
   private val route                  = new Routes(postHandlerImpl, null, logger).route
 
@@ -226,4 +229,22 @@ class PostRouteTest extends BaseTestSuite with ScalatestRouteTest with GatewayCo
     }
   }
 
+  "Log" must {
+    "returns Done on success | ESW-200" in {
+      val log = Log(
+        "esw-test",
+        Level.FATAL,
+        "test-message",
+        MapElem.Unsized(
+          ("additional-info", IntElem(45))
+        )
+      )
+      Post("/post-endpoint", log) ~> route ~> check {
+        responseAs[Done] shouldEqual Done
+        verify(logger).fatal(argsEq("test-message"), argsEq(Map("additional-info" -> 45)), any[Throwable], any[AnyId])(
+          any[SourceFactory]
+        )
+      }
+    }
+  }
 }
