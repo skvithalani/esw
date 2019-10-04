@@ -16,10 +16,10 @@ import csw.params.commands.{CommandName, CommandResponse, Setup}
 import csw.params.core.models.{Id, ObsId, Prefix, Subsystem}
 import csw.params.events.{Event, EventKey, EventName, SystemEvent}
 import esw.gateway.api.codecs.GatewayCodecs
-import esw.gateway.api.protocol.PostRequest.{GetEvent, Oneway, PublishEvent, SetAlarmSeverity, Submit, Validate}
+import esw.gateway.api.protocol.PostRequest._
 import esw.gateway.api.protocol.{EmptyEventKeys, EventServerUnavailable, InvalidComponent, SetAlarmSeverityFailure}
-import esw.gateway.api.{AlarmApi, CommandApi, EventApi}
-import esw.gateway.impl.{AlarmImpl, CommandImpl, EventImpl}
+import esw.gateway.api.{AlarmApi, CommandApi, EventApi, LoggingApi}
+import esw.gateway.impl._
 import esw.gateway.server.handlers.PostHandlerImpl
 import esw.http.core.BaseTestSuite
 import mscoket.impl.HttpCodecs
@@ -46,7 +46,8 @@ class PostRouteTest extends BaseTestSuite with ScalatestRouteTest with GatewayCo
   private val alarmApi: AlarmApi     = new AlarmImpl(alarmService)
   private val eventApi: EventApi     = new EventImpl(eventService, eventSubscriberUtil)
   private val commandApi: CommandApi = new CommandImpl(componentFactory.commandService)
-  private val postHandlerImpl        = new PostHandlerImpl(alarmApi, commandApi, eventApi)
+  private val loggingApi: LoggingApi = new LoggingImpl(new LoggerCache)
+  private val postHandlerImpl        = new PostHandlerImpl(alarmApi, commandApi, eventApi, loggingApi)
   private val route                  = new Routes(postHandlerImpl, null, logger).route
 
   // fixme: add failure scenario when event server/ alarm server is down
