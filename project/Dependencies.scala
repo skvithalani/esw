@@ -98,7 +98,8 @@ object Dependencies {
 
   val EswGatewayImpl: Def.Initialize[Seq[ModuleID]] = Def.setting(
     Seq(
-      Csw.`csw-event-client`
+      Csw.`csw-event-client`,
+      Libs.`caffeine`
     )
   )
 
