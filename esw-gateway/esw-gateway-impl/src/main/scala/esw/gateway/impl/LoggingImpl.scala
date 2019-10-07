@@ -9,16 +9,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class LoggingImpl(loggerCache: LoggerCache)(implicit ec: ExecutionContext) extends LoggingApi {
 
-  def getValue(element: Element): Any = {
+  private def getValue(element: Element): Any = {
     element match {
-      case NullElem                => null
       case BooleanElem(value)      => value
       case StringElem(value)       => value
       case IntElem(value)          => value
       case LongElem(value)         => value
       case NumberStringElem(value) => value
       case DoubleElem(value)       => value
-      case UndefinedElem           => null
       case FloatElem(value)        => value
       case Float16Elem(value)      => value
       case elem: ArrayElem         => Array(elem.elements.map(getValue))
@@ -27,9 +25,16 @@ class LoggingImpl(loggerCache: LoggerCache)(implicit ec: ExecutionContext) exten
     }
   }
 
-  def getMap(element: MapElem): Map[String, Any] = element.asInstanceOf[MapElem].toMap.map[String, Any] {
-    case (k, v) => (k.asInstanceOf[StringElem].value, getValue(v))
-  }
+  private def getMap(element: MapElem): Map[String, Any] =
+    element
+      .asInstanceOf[MapElem]
+      .toMap
+      .map[String, Any] {
+        case (k, v) => (k.asInstanceOf[StringElem].value, getValue(v))
+      }
+      .filter({
+        case (_, v) => v != null
+      })
 
   override def log(appName: String, level: Level, message: String, metadata: MapElem): Future[Done] = {
     val logger = loggerCache.get(appName)
