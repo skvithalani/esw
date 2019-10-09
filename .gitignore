@@ -38,4 +38,7 @@ snapshots
 .bloop
 project/.bloop
 project/project/.bloop
-
+.metals
+.gradle
+*/.kotlintest
+out
