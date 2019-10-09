@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="scripts.examples.main" target="1.8" />
+      <module name="scripts.examples.test" target="1.8" />
+      <module name="scripts.integration-test.main" target="1.8" />
+      <module name="scripts.integration-test.test" target="1.8" />
+      <module name="scripts.main" target="11" />
+      <module name="scripts.script-dsl.main" target="1.8" />
+      <module name="scripts.script-dsl.test" target="1.8" />
+      <module name="scripts.test" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
