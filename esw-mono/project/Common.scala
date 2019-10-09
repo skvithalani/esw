@@ -28,6 +28,7 @@ object Common extends AutoPlugin {
     ),
     resolvers += "jitpack" at "https://jitpack.io",
     resolvers += "bintray" at "https://jcenter.bintray.com",
+    resolvers += Resolver.mavenLocal,
     autoCompilerPlugins := true,
     enableFatalWarnings := false,
     suppressAnnotatedWarnings := true,
