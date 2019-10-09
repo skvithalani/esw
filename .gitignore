@@ -18,6 +18,8 @@ dist
 .DS_Store
 test-output/
 
+*/**/.kotlintest
+
 build
 
 .vscode
