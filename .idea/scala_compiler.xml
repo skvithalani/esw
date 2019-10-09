@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="incrementalityType" value="SBT" />
-    <profile name="sbt 1" modules="esw-mono_3548" />
-    <profile name="sbt 2" modules="docs,esw-gateway,esw-gateway-api,esw-gateway-impl,esw-gateway-server,esw-http-core,esw-integration-test,esw-mono,esw-ocs,esw-ocs-api,esw-ocs-app,esw-ocs-dsl,esw-ocs-impl,esw-sm,esw-test-reporter">
+    <profile name="sbt 1" modules="docs,esw-gateway,esw-gateway-api,esw-gateway-impl,esw-gateway-server,esw-http-core,esw-integration-test,esw-mono,esw-ocs,esw-ocs-api,esw-ocs-app,esw-ocs-dsl,esw-ocs-impl,esw-sm,esw-test-reporter">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />

@@ -69,7 +69,6 @@ project/project/.bloop
 .idea/**/dbnavigator.xml
 
 # Gradle
-.idea/**/gradle.xml
 .idea/**/libraries
 
 # Gradle and Maven with auto-import
@@ -164,7 +163,6 @@ esw-mono/.idea/**/uiDesigner.xml
 esw-mono/.idea/**/dbnavigator.xml
 
 # Gradle
-esw-mono/.idea/**/gradle.xml
 esw-mono/.idea/**/libraries
 
 # Gradle and Maven with auto-import
