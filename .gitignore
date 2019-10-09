@@ -40,6 +40,5 @@ project/project/.bloop
 */.kotlintest
 
 !.idea/gradle.xml
-!.idea/sbt.xml
 .idea
 esw-mono/.idea

@@ -24,7 +24,7 @@ lazy val unidocExclusions: Seq[ProjectReference] = Seq(
 val enableCoverage         = sys.props.get("enableCoverage").contains("true")
 val MaybeCoverage: Plugins = if (enableCoverage) Coverage else Plugins.empty
 
-lazy val `esw-mono` = (project in file("."))
+lazy val `esw` = (project in file("."))
   .aggregate(aggregateProjects: _*)
   .enablePlugins(NoPublish, UnidocSitePlugin, GithubPublishPlugin, GitBranchPrompt, GithubRelease)
   .disablePlugins(BintrayPlugin)

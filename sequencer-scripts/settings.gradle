@@ -1,4 +1,4 @@
-rootProject.name = 'scripts'
+rootProject.name = 'sequencer-scripts'
 
 include(
         "script-dsl",
