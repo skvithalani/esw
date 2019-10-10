@@ -105,7 +105,7 @@ lazy val `esw-integration-test` = project
 
 import scala.sys.process._
 lazy val publishKotlin: Def.Initialize[Task[Unit]] = Def.task {
-  "./sequencer-scripts/publish.sh".lineStream_!
+  "./esw-kt/publish.sh".lineStream_!
     .foreach(msg => println(s"[Kotlin] $msg"))
 }
 
