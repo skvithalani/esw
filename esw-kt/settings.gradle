@@ -1,0 +1,6 @@
+rootProject.name = 'esw-kt'
+
+include(
+        "script-dsl",
+        "examples"
+)

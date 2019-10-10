@@ -5,13 +5,12 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/sequencer-scripts" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/esw-kt" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/sequencer-scripts" />
-            <option value="$PROJECT_DIR$/sequencer-scripts/examples" />
-            <option value="$PROJECT_DIR$/sequencer-scripts/integration-test" />
-            <option value="$PROJECT_DIR$/sequencer-scripts/script-dsl" />
+            <option value="$PROJECT_DIR$/esw-kt" />
+            <option value="$PROJECT_DIR$/esw-kt/examples" />
+            <option value="$PROJECT_DIR$/esw-kt/script-dsl" />
           </set>
         </option>
         <option name="useQualifiedModuleNames" value="true" />
